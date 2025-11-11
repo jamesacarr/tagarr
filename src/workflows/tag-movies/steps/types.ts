@@ -1,6 +1,8 @@
+import type { Tag } from '@/db/tag/types';
+
 export interface ListWithItems {
   id: number;
-  tag_id: number;
+  tags: Tag[];
   itemIds: number[];
 }
 

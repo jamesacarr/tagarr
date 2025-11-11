@@ -15,6 +15,17 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db
     .insertInto('config')
     .values({
+      mdblist_api_key: process.env.MDBLIST_API_KEY,
+      radarr_api_key: process.env.RADARR_API_KEY,
+      radarr_url: process.env.RADARR_URL,
+      sonarr_api_key: process.env.SONARR_API_KEY,
+      sonarr_url: process.env.SONARR_URL,
+    })
+    .execute();
+
+  await db
+    .insertInto('config')
+    .values({
       radarr_api_key: '',
       radarr_url: '',
       sonarr_api_key: '',

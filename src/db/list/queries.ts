@@ -1,24 +1,30 @@
 'use server';
 
+import type { ExpressionBuilder } from 'kysely';
+import { jsonArrayFrom } from 'kysely/helpers/sqlite';
+
 import { db } from '../db';
+import type { Database } from '../types';
 import type { ListUpdate, NewList, SyncedList } from './types';
+
+const withTags = (eb: ExpressionBuilder<Database, 'list'>) =>
+  jsonArrayFrom(
+    eb
+      .selectFrom('tag')
+      .innerJoin('lists_tags', 'tag.id', 'lists_tags.tag_id')
+      .select(['tag.id', 'tag.label'])
+      .whereRef('lists_tags.list_id', '=', 'list.id'),
+  ).as('tags');
 
 export const deleteAllLists = async () => {
   await db.deleteFrom('list').execute();
 };
 
 export const getAllLists = async () => {
-  const lists = await db.selectFrom('list').selectAll('list').execute();
-
-  return lists;
-};
-
-export const getAllListsWithTags = async () => {
   const lists = await db
     .selectFrom('list')
-    .leftJoin('tag', 'list.tag_id', 'tag.id')
     .selectAll('list')
-    .select('tag.label as tag_label')
+    .select(eb => [withTags(eb)])
     .execute();
 
   return lists;
@@ -27,9 +33,9 @@ export const getAllListsWithTags = async () => {
 export const getAllSyncedLists = async (): Promise<SyncedList[]> => {
   const lists = await db
     .selectFrom('list')
-    .selectAll()
-    .where('sync', '=', 1)
-    .where('tag_id', 'is not', null)
+    .selectAll('list')
+    .select(eb => [withTags(eb)])
+    .where('enabled', '=', 1)
     .execute();
 
   // Manually enforcing type here because the query builder doesn't
@@ -40,7 +46,8 @@ export const getAllSyncedLists = async (): Promise<SyncedList[]> => {
 export const getListById = async (id: number) => {
   const list = await db
     .selectFrom('list')
-    .selectAll()
+    .selectAll('list')
+    .select(eb => [withTags(eb)])
     .where('id', '=', id)
     .executeTakeFirst();
 

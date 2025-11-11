@@ -1,3 +1,41 @@
+interface ListField {
+  advanced: boolean;
+  helpText: string;
+  isFloat: boolean;
+  label: string;
+  name: string;
+  order: number;
+  privacy: string;
+  type: string;
+  value: string;
+}
+
+export interface ListResponse {
+  configContract: 'RadarrListSettings';
+  enableAuto: boolean;
+  enabled: true;
+  fields: ListField[];
+  id: number;
+  implementation: string;
+  implementationName: string;
+  infoLink: string;
+  listOrder: number;
+  listType: string;
+  message?: {
+    message: string;
+    type: 'info';
+  };
+  minRefreshInterval: string;
+  minimumAvailability: string;
+  monitor: string;
+  name: string;
+  presets: string[];
+  qualityProfileId: number;
+  rootFolderPath: string;
+  searchOnAdd: boolean;
+  tags: number[];
+}
+
 export interface MovieResponse {
   added: string;
   alternateTitles: Array<{

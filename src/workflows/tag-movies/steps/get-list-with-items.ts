@@ -15,20 +15,24 @@ export const getListWithItems = async (
     throw new FatalError('List not found');
   }
 
-  if (list.sync !== 1) {
+  if (list.enabled !== 1) {
     throw new FatalError('List is not synced');
   }
 
-  if (!list.tag_id) {
-    throw new FatalError('List has no tag');
+  if (list.tags.length === 0) {
+    throw new FatalError('List has no tags');
   }
 
-  const items = await getListItems(list.id);
-  const itemIds = items.movies.map(movie => movie.id);
+  if (!list.url.startsWith('https://mdblist.com')) {
+    throw new FatalError('List is not a MDBList list');
+  }
+
+  const items = await getListItems(list.url);
+  const itemIds = items.map(item => item.id);
 
   return {
     id: list.id,
     itemIds,
-    tag_id: list.tag_id,
+    tags: list.tags,
   };
 };

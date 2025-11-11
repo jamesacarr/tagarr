@@ -1,26 +1,31 @@
 import { isEqual } from 'radash';
 
 import { getAllLists } from '@/db/list/queries';
-import type { List, NewList } from '@/db/list/types';
+import type { ListWithTags, NewListWithTags } from '@/db/list/types';
 
-const areListsEqual = (existingList: List | undefined, newList: NewList) =>
+const areListsEqual = (
+  existingList: ListWithTags | undefined,
+  newList: NewListWithTags,
+) =>
   existingList &&
   isEqual(
     {
-      description: existingList.description,
+      enabled: existingList.enabled,
       id: existingList.id,
       name: existingList.name,
-      slug: existingList.slug,
+      tag_ids: existingList.tags.map(tag => tag.id),
+      url: existingList.url,
     },
     {
-      description: newList.description,
+      enabled: newList.enabled,
       id: newList.id,
       name: newList.name,
-      slug: newList.slug,
+      tag_ids: newList.tag_ids,
+      url: newList.url,
     },
   );
 
-export const groupLists = async (lists: NewList[]) => {
+export const groupLists = async (lists: NewListWithTags[]) => {
   'use step';
 
   const existingLists = new Map(

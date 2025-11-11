@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 
 import { refreshLists } from '@/db/list/refresh-lists';
-import type { ListWithTag } from '@/db/list/types';
+import type { ListWithTags } from '@/db/list/types';
 
 import { Lists } from './lists';
 
@@ -14,27 +14,21 @@ vi.mock('@/db/list/refresh-lists', () => ({
   refreshLists: vi.fn(),
 }));
 
-const LISTS: ListWithTag[] = [
+const LISTS: ListWithTags[] = [
   {
-    description: 'Test Description 1',
+    enabled: 1,
     id: 1,
     last_synced_at: '2021-01-01T00:00:00Z',
     name: 'Test List 1',
-    slug: 'test-slug-1',
-    sync: 1,
-    tag_id: 1,
-    tag_label: 'test-tag-1',
+    tags: [{ id: 1, label: 'test-tag-1' }],
     url: 'https://test.com/1',
   },
   {
-    description: 'Test Description 2',
+    enabled: 1,
     id: 2,
     last_synced_at: '2021-01-02T00:00:00Z',
     name: 'Test List 2',
-    slug: 'test-slug-2',
-    sync: 1,
-    tag_id: 2,
-    tag_label: 'test-tag-2',
+    tags: [{ id: 2, label: 'test-tag-2' }],
     url: 'https://test.com/2',
   },
 ];

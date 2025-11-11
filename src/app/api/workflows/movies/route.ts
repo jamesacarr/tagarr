@@ -2,37 +2,28 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { start } from 'workflow/api';
 
-import { getAllSyncedLists } from '@/db/list/queries';
 import { tagMovies } from '@/workflows/tag-movies';
 
 export const POST = async (request: NextRequest) => {
-  const lists = await getAllSyncedLists();
-  const runs = await Promise.all(
-    lists.map(list => start(tagMovies, [list.id])),
-  );
+  const run = await start(tagMovies);
+  const runId = run.runId;
 
   if (!request.nextUrl.searchParams.has('sync')) {
     return NextResponse.json({
       message: 'Movie tagging started',
-      runIds: runs.map(run => run.runId),
+      runId,
     });
   }
 
-  const results = await Promise.all(
-    runs.map(async run => {
-      const result = await run.returnValue;
-      const createdAt = await run.createdAt;
-      const completedAt = await run.completedAt;
-      const status = await run.status;
-      return {
-        completedAt,
-        createdAt,
-        result,
-        runId: run.runId,
-        status,
-      };
-    }),
-  );
-
-  return NextResponse.json(results);
+  const result = await run.returnValue;
+  const createdAt = await run.createdAt;
+  const completedAt = await run.completedAt;
+  const status = await run.status;
+  return NextResponse.json({
+    completedAt,
+    createdAt,
+    result,
+    runId,
+    status,
+  });
 };

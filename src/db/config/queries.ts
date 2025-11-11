@@ -2,6 +2,7 @@
 
 import { db } from '../db';
 import type { ConfigUpdate } from './types';
+import { validateConfig } from './validate-config';
 
 const DEFAULT_CONFIG = {
   mdblist_api_key: '',
@@ -19,13 +20,15 @@ export const getConfig = async () => {
     .limit(1)
     .executeTakeFirst();
 
-  return config ?? DEFAULT_CONFIG;
+  return validateConfig(config ?? DEFAULT_CONFIG);
 };
 
 export const updateConfig = async (data: ConfigUpdate) => {
+  const validatedConfig = validateConfig(data);
+
   const config = await db
     .updateTable('config')
-    .set(data)
+    .set(validatedConfig)
     .returningAll()
     .executeTakeFirst();
 

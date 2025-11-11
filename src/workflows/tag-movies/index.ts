@@ -1,39 +1,31 @@
 import { addTagToMovies } from './steps/add-tag-to-movies';
 import { fetchMovies } from './steps/fetch-movies';
-import { getListWithItems } from './steps/get-list-with-items';
+import { getAllLists } from './steps/get-all-lists';
 import { groupMovies } from './steps/group-movies';
 import { removeTagFromMovies } from './steps/remove-tag-from-movies';
 import { updateListSynced } from './steps/update-list-synced';
 import { validateRadarrConnection } from './steps/validate-radarr-connection';
 
-export const tagMovies = async (listId: number) => {
+export const tagMovies = async () => {
   'use workflow';
 
   await validateRadarrConnection();
-  const [list, movies] = await Promise.all([
-    getListWithItems(listId),
-    fetchMovies(),
-  ]);
-  await updateListSynced(listId, new Date().toISOString());
-  if (list.itemIds.length === 0) {
-    return {
-      added: {
-        count: 0,
-        movies: [],
-      },
-      removed: {
-        count: 0,
-        movies: [],
-      },
-      tagId: list.tag_id,
-    };
+
+  const movies = await fetchMovies();
+  const lists = await getAllLists();
+
+  for (const list of lists) {
+    await updateListSynced(list.id, new Date().toISOString());
   }
 
-  const { moviesToAdd, moviesToRemove } = await groupMovies(movies, list);
-  await addTagToMovies(list.tag_id, moviesToAdd);
-  await removeTagFromMovies(list.tag_id, moviesToRemove);
+  const groupedMovies = await groupMovies(movies, lists);
 
-  return {
+  for (const { moviesToAdd, moviesToRemove, tagId } of groupedMovies) {
+    await addTagToMovies(tagId, moviesToAdd);
+    await removeTagFromMovies(tagId, moviesToRemove);
+  }
+
+  return groupedMovies.map(({ moviesToAdd, moviesToRemove, tagId }) => ({
     added: {
       count: moviesToAdd.length,
       movies: moviesToAdd.map(movie => ({
@@ -50,6 +42,6 @@ export const tagMovies = async (listId: number) => {
         tmdbId: movie.tmdbId,
       })),
     },
-    tagId: list.tag_id,
-  };
+    tagId,
+  }));
 };

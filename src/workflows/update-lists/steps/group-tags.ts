@@ -4,11 +4,7 @@ import { getAllTags } from '@/db/tag/queries';
 import type { NewTag, Tag } from '@/db/tag/types';
 
 const areTagsEqual = (existingTag: Tag | undefined, newTag: NewTag) =>
-  existingTag &&
-  isEqual(
-    { id: existingTag.id, label: existingTag.label },
-    { id: newTag.id, label: newTag.label },
-  );
+  existingTag && isEqual(existingTag, newTag);
 
 export const groupTags = async (tags: NewTag[]) => {
   'use step';

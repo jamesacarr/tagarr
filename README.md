@@ -12,11 +12,10 @@ This service was created to fix an issue with how Radarr handless tagging for Im
 
 This service will automatically do the following once a day (at midnight UTC):
 
-- Sync all lists from MDBList
-- Sync all tags from Radarr
-- Update tags for Radarr library items (add tag if missing, remove tag if no longer on list)
+- Sync all lists & their tags from Radarr
+- Fetch all movies in the lists and update tags in the Radarr library (add tag if missing, remove tag if no longer on list)
 
-You can manually trigger the sync for Radarr/MDBList by using the relevant buttons in the UI. There is currently no way to trigger a tag update via the UI.
+You can manually refresh the Radarr lists by using the Refresh button in the UI. There is currently no way to trigger a tag update via the UI.
 
 ## API
 
@@ -50,11 +49,8 @@ If the `sync` query parameter is added to the URL (e.g. `/api/workflow/lists?syn
         {
           "id": 1,
           "name": "deleted",
-          "description": "deleted list",
-          "slug": "deleted-list",
           "url": "https://mdblist.com/lists/some-fake-user/deleted-list",
-          "tag_id": 1,
-          "sync": 1,
+          "enabled": 1,
           "last_synced_at": "2025-01-01 00:00:00Z"
         }
       ]
@@ -65,11 +61,8 @@ If the `sync` query parameter is added to the URL (e.g. `/api/workflow/lists?syn
         {
           "id": 2,
           "name": "new",
-          "description": "new list",
-          "slug": "new-list",
           "url": "https://mdblist.com/lists/some-fake-user/new-list",
-          "tag_id": 2,
-          "sync": 1,
+          "enabled": 1,
           "last_synced_at": "2025-01-01 00:00:00Z"
         }
       ]
@@ -80,11 +73,8 @@ If the `sync` query parameter is added to the URL (e.g. `/api/workflow/lists?syn
         {
           "id": 3,
           "name": "updated",
-          "description": "updated list",
-          "slug": "updated-list",
           "url": "https://mdblist.com/lists/some-fake-user/updated-list",
-          "tag_id": 3,
-          "sync": 1,
+          "enabled": 1,
           "last_synced_at": "2025-01-01 00:00:00Z"
         }
       ]
@@ -115,84 +105,33 @@ If the `sync` query parameter is added to the URL (e.g. `/api/workflow/movies?sy
     "status": "completed" | "failed",
     "createdAt": "<created timestamp>",
     "completedAt": "<completed timestamp>",
-    "result": {
-      "tagId": 1,
-      "added": {
-        "count": 1,
-        "movies": [
-          {
-            "id": 1,
-            "title": "The Godfather",
-            "tmdbId": 238
-          }
-        ]
-      },
-      "removed": {
-        "count": 1,
-        "movies": [
-          {
-            "id": 1,
-            "title": "Interstellar",
-            "tmdbId": 157336
-          }
-        ]
+    "result": [
+      {
+        "tagId": 1,
+        "added": {
+          "count": 1,
+          "movies": [
+            {
+              "id": 1,
+              "title": "The Godfather",
+              "tmdbId": 238
+            }
+          ]
+        },
+        "removed": {
+          "count": 1,
+          "movies": [
+            {
+              "id": 1,
+              "title": "Interstellar",
+              "tmdbId": 157336
+            }
+          ]
+        }
       }
-    }
+    ]
   }
 ]
-```
-
-### `POST /api/workflows/tags`
-
-- Response 200 (application/json)
-
-```
-{
-  "message": "Tag update started",
-  "runId": <runID>,
-}
-```
-
-Triggers the process to fetch all tags from Radarr.
-
-If the `sync` query parameter is added to the URL (e.g. `/api/workflow/tags?sync`), the request will wait for the lists to be updated before responding with:
-
-```
-{
-  "runId": <runId>,
-  "status": "completed" | "failed",
-  "createdAt": "<created timestamp>",
-  "completedAt": "<completed timestamp>",
-  "result": {
-    "deleted": {
-      "count": 1,
-      "lists": [
-        {
-          "id": 1,
-          "label": "deleted"
-        }
-      ]
-    },
-    "inserted": {
-      "count": 1,
-      "lists": [
-        {
-          "id": 2,
-          "label": "new"
-        }
-      ]
-    },
-    "updated": {
-      "count": 1,
-      "lists": [
-        {
-          "id": 3,
-          "label": "updated"
-        }
-      ]
-    }
-  }
-}
 ```
 
 ### `POST /api/workflows/<runId>`

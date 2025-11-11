@@ -1,13 +1,13 @@
 import type { FC } from 'react';
 
-import type { ListWithTag } from '@/db/list/types';
+import type { ListWithTags } from '@/db/list/types';
 
 import { ListItem } from './list-item';
 import { ListsEmpty } from './lists-empty';
 import { RefreshListsButton } from './refresh-lists-button';
 
 interface Props {
-  lists: ListWithTag[];
+  lists: ListWithTags[];
 }
 
 export const Lists: FC<Props> = ({ lists }) => {

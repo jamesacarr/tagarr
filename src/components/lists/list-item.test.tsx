@@ -2,19 +2,16 @@ import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 
-import type { ListWithTag } from '@/db/list/types';
+import type { ListWithTags } from '@/db/list/types';
 
 import { ListItem } from './list-item';
 
-const LIST_ITEM: ListWithTag = {
-  description: 'Test Description',
+const LIST_ITEM: ListWithTags = {
+  enabled: 1,
   id: 1,
   last_synced_at: '2021-01-01T00:00:00Z',
   name: 'Test List',
-  slug: 'test-slug',
-  sync: 1,
-  tag_id: 1,
-  tag_label: 'test-tag',
+  tags: [{ id: 1, label: 'test-tag' }],
   url: 'https://test.com',
 };
 
@@ -50,14 +47,6 @@ describe('ListItem', () => {
       const list = { ...LIST_ITEM, last_synced_at: null };
       render(<ListItem list={list} />);
       expect(screen.getByText('Last synced: Never')).toBeInTheDocument();
-    });
-
-    it('has an edit button', () => {
-      render(<ListItem list={LIST_ITEM} />);
-      expect(screen.getByText('Edit')).toHaveAttribute(
-        'href',
-        `/${LIST_ITEM.id}`,
-      );
     });
   });
 
