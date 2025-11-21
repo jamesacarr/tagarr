@@ -2,10 +2,10 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { start } from 'workflow/api';
 
-import { tagMovies } from '@/workflows/tag-movies';
+import { tagMedia } from '@/workflows/tag-media';
 
 export const POST = async (request: NextRequest) => {
-  const run = await start(tagMovies);
+  const run = await start(tagMedia, ['radarr']);
   const runId = run.runId;
 
   if (!request.nextUrl.searchParams.has('sync')) {

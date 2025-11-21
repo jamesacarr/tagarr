@@ -26,7 +26,7 @@ This services also provides some API endpoints to programmatically trigger syncs
 ```
 {
   "message": "Movie tagging started",
-  "runIds": [<runIDs>],
+  "runId": "wrun_123",
 }
 ```
 
@@ -78,7 +78,7 @@ If the `sync` query parameter is added to the URL (e.g. `/api/workflow/movies?sy
 ```
 {
   "message": "Series tagging started",
-  "runIds": [<runIDs>],
+  "runId": "wrun_123",
 }
 ```
 

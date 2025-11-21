@@ -19,7 +19,7 @@ export const getConfig = async () => {
     .limit(1)
     .executeTakeFirst();
 
-  return validateConfig(config ?? DEFAULT_CONFIG);
+  return config ?? DEFAULT_CONFIG;
 };
 
 export const updateConfig = async (data: ConfigUpdate) => {

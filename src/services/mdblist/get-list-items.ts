@@ -1,4 +1,5 @@
 import ky from 'ky';
+import { capitalize } from 'radash';
 
 interface ListItemsResponse {
   adult: number;
@@ -13,13 +14,13 @@ interface ListItemsResponse {
 
 export const getListItems = async (
   url: string,
-  service: 'Radarr' | 'Sonarr',
+  service: 'radarr' | 'sonarr',
 ) => {
   return await ky
     .get<ListItemsResponse[]>(url, {
       headers: {
         // Using Radarr/Sonarr as the user agent in order to get the correct response format
-        'User-Agent': service,
+        'User-Agent': capitalize(service),
       },
     })
     .json();

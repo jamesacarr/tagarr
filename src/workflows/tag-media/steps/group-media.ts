@@ -7,8 +7,8 @@ import type {
 } from '@/workflows/types';
 
 // biome-ignore lint/suspicious/useAwait: needs to be async for workflows
-export const groupSeries = async (
-  series: WithTags<Item>[],
+export const groupMedia = async (
+  media: WithTags<Item>[],
   lists: ListWithItems[],
   tags: Tag[],
 ): Promise<Grouped<Item>[]> => {
@@ -25,43 +25,39 @@ export const groupSeries = async (
     }
   }
 
-  const groupedSeries = [...tagsMap.entries()].map(([tagId, itemIds]) => {
+  const groupedMedia = [...tagsMap.entries()].map(([tagId, itemIds]) => {
     const tag = tags.find(tag => tag.id === tagId);
     if (!tag) {
       throw new Error(`Tag with id ${tagId} not found`);
     }
 
-    const seriesToAdd = series
-      .filter(
-        series => itemIds.has(series.tmdbId) && !series.tags.includes(tagId),
-      )
-      .map(series => ({
-        id: series.id,
-        title: series.title,
-        tmdbId: series.tmdbId,
+    const mediaToAdd = media
+      .filter(media => itemIds.has(media.tmdbId) && !media.tags.includes(tagId))
+      .map(media => ({
+        id: media.id,
+        title: media.title,
+        tmdbId: media.tmdbId,
       }));
-    const seriesToRemove = series
-      .filter(
-        series => !itemIds.has(series.tmdbId) && series.tags.includes(tagId),
-      )
-      .map(series => ({
-        id: series.id,
-        title: series.title,
-        tmdbId: series.tmdbId,
+    const mediaToRemove = media
+      .filter(media => !itemIds.has(media.tmdbId) && media.tags.includes(tagId))
+      .map(media => ({
+        id: media.id,
+        title: media.title,
+        tmdbId: media.tmdbId,
       }));
 
     return {
       added: {
-        count: seriesToAdd.length,
-        items: seriesToAdd,
+        count: mediaToAdd.length,
+        items: mediaToAdd,
       },
       removed: {
-        count: seriesToRemove.length,
-        items: seriesToRemove,
+        count: mediaToRemove.length,
+        items: mediaToRemove,
       },
       tag,
     };
   });
 
-  return groupedSeries;
+  return groupedMedia;
 };

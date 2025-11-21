@@ -1,10 +1,9 @@
-import { fetchRadarrLists } from './fetch-radarr-lists';
-import { fetchSonarrLists } from './fetch-sonarr-lists';
+import { fetchListsForService } from './fetch-lists-for-service';
 
 export const fetchAllLists = async () => {
   const [radarrLists, sonarrLists] = await Promise.all([
-    fetchRadarrLists(),
-    fetchSonarrLists(),
+    fetchListsForService('radarr'),
+    fetchListsForService('sonarr'),
   ]);
 
   return [...radarrLists, ...sonarrLists];

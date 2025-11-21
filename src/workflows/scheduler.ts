@@ -4,8 +4,7 @@ import cron from 'node-cron';
 import type { Run } from 'workflow/api';
 import { start } from 'workflow/api';
 
-import { tagMovies } from '@/workflows/tag-movies';
-import { tagSeries } from '@/workflows/tag-series';
+import { tagMedia } from '@/workflows/tag-media';
 
 const SCHEDULE = '0 0 * * *';
 
@@ -33,8 +32,8 @@ export const scheduleWorkflows = () => {
   cron.schedule(SCHEDULE, async () => {
     console.log('[Workflow] Starting...');
 
-    await logWorkflow(await start(tagMovies));
-    await logWorkflow(await start(tagSeries));
+    await logWorkflow(await start(tagMedia, ['radarr']));
+    await logWorkflow(await start(tagMedia, ['sonarr']));
 
     console.log('[Workflow] Completed');
   });

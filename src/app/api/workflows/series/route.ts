@@ -2,10 +2,10 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { start } from 'workflow/api';
 
-import { tagSeries } from '@/workflows/tag-series';
+import { tagMedia } from '@/workflows/tag-media';
 
 export const POST = async (request: NextRequest) => {
-  const run = await start(tagSeries);
+  const run = await start(tagMedia, ['sonarr']);
   const runId = run.runId;
 
   if (!request.nextUrl.searchParams.has('sync')) {

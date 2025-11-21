@@ -60,7 +60,7 @@ export const SettingsForm: FC<Props> = ({ settings }) => {
       <CardHeader>
         <CardTitle>Settings</CardTitle>
         <CardDescription>
-          Configre your *arr app connection settings.
+          Configure your *arr app connection settings.
         </CardDescription>
       </CardHeader>
       <CardContent>
