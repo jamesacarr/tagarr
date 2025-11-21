@@ -1,13 +1,12 @@
+import { group } from 'radash';
 import type { FC } from 'react';
 
-import type { ListWithTags } from '@/db/list/types';
-
-import { ListItem } from './list-item';
 import { ListsEmpty } from './lists-empty';
-import { RefreshListsButton } from './refresh-lists-button';
+import { ListsGroup } from './lists-group';
+import type { List } from './types';
 
 interface Props {
-  lists: ListWithTags[];
+  lists: List[];
 }
 
 export const Lists: FC<Props> = ({ lists }) => {
@@ -15,12 +14,17 @@ export const Lists: FC<Props> = ({ lists }) => {
     return <ListsEmpty />;
   }
 
+  const listsByService = group(lists, list => list.service);
+
   return (
     <div className="flex w-full max-w-md flex-col gap-6">
-      {lists.map(list => (
-        <ListItem key={list.id} list={list} />
+      {Object.entries(listsByService).map(([service, lists]) => (
+        <ListsGroup
+          key={service}
+          lists={lists}
+          service={service as 'radarr' | 'sonarr'}
+        />
       ))}
-      <RefreshListsButton />
     </div>
   );
 };

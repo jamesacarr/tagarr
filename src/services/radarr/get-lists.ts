@@ -1,20 +1,19 @@
 import ky from 'ky';
 
 import type { ListResponse } from './types';
-import { validateConfig } from './validate-config';
 
-export const getLists = async () => {
-  const { radarr_api_key, radarr_url } = await validateConfig();
+export const getLists = async (url: string, apiKey: string) => {
+  if (!url || !apiKey) {
+    return [];
+  }
 
-  const response = await ky.get<ListResponse[]>(
-    `${radarr_url}/api/v3/importlist`,
-    {
+  const lists = await ky
+    .get<ListResponse[]>(`${url}/api/v3/importlist`, {
       headers: {
-        'X-Api-Key': radarr_api_key,
+        'X-Api-Key': apiKey,
       },
-    },
-  );
+    })
+    .json();
 
-  const data = await response.json();
-  return data;
+  return lists.filter(list => list.enabled);
 };

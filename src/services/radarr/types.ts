@@ -13,7 +13,7 @@ interface ListField {
 export interface ListResponse {
   configContract: 'RadarrListSettings';
   enableAuto: boolean;
-  enabled: true;
+  enabled: boolean;
   fields: ListField[];
   id: number;
   implementation: string;
@@ -174,4 +174,9 @@ export interface MovieResponse {
   website: string;
   year: number;
   youTubeTrailerId: string;
+}
+
+export interface TagResponse {
+  id: number;
+  label: string;
 }

@@ -5,7 +5,6 @@ import type { ConfigUpdate } from './types';
 import { validateConfig } from './validate-config';
 
 const DEFAULT_CONFIG = {
-  mdblist_api_key: '',
   radarr_api_key: '',
   radarr_url: '',
   sonarr_api_key: '',

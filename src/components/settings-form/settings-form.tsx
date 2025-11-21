@@ -142,26 +142,6 @@ export const SettingsForm: FC<Props> = ({ settings }) => {
                 </Field>
               )}
             />
-            <Controller
-              control={control}
-              name="mdblist_api_key"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="mdblist-api-key">
-                    MDBList API Key
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                    id="mdblist-api-key"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
           </FieldGroup>
         </form>
       </CardContent>

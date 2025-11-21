@@ -1,25 +1,41 @@
+import { ExternalLinkIcon } from 'lucide-react';
 import type { FC } from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import { Item, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ListWithTags } from '@/db/list/types';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from '@/components/ui/item';
 
-import { ListItemSynced } from './list-item-synced';
+import type { List } from './types';
 
 interface Props {
-  list: ListWithTags;
+  list: List;
 }
 
 export const ListItem: FC<Props> = ({ list }) => (
-  <Item variant="outline">
-    <ItemContent>
-      <ItemTitle>
-        {list.name}{' '}
-        {list.tags.map(tag => (
-          <Badge key={tag.id}>{tag.label}</Badge>
-        ))}
-      </ItemTitle>
-      <ListItemSynced lastSyncedAt={list.last_synced_at} />
-    </ItemContent>
+  <Item asChild>
+    <a
+      aria-label={list.name}
+      href={list.url}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <ItemContent>
+        <ItemTitle>
+          {list.name}{' '}
+          {list.tags.map(tag => (
+            <Badge key={tag.id}>{tag.label}</Badge>
+          ))}
+        </ItemTitle>
+        <ItemDescription></ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        <ExternalLinkIcon className="size-4" />
+      </ItemActions>
+    </a>
   </Item>
 );

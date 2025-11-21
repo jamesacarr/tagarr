@@ -1,8 +1,12 @@
-import { addTag } from '@/services/radarr/add-tag';
+import { addTag } from '@/services/radarr';
+import type { Item } from '@/workflows/types';
 
-import type { Movie } from './types';
-
-export const addTagToMovies = async (tagId: number, movies: Movie[]) => {
+export const addTagToMovies = async (
+  url: string,
+  apiKey: string,
+  tagId: number,
+  movies: Item[],
+): Promise<void> => {
   'use step';
 
   if (movies.length === 0) {
@@ -10,6 +14,8 @@ export const addTagToMovies = async (tagId: number, movies: Movie[]) => {
   }
 
   await addTag(
+    url,
+    apiKey,
     tagId,
     movies.map(movie => movie.id),
   );

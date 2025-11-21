@@ -1,4 +1,4 @@
-import { House } from 'lucide-react';
+import { HouseIcon } from 'lucide-react';
 import Link from 'next/link';
 import type { FC } from 'react';
 
@@ -13,7 +13,7 @@ export const HomeButton: FC = () => (
     variant="ghost"
   >
     <Link href="/">
-      <House />
+      <HouseIcon />
     </Link>
   </Button>
 );

@@ -39,7 +39,6 @@
     "better-sqlite3": "^12.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "commander": "^14.0.2",
     "ky": "^1.14.0",
     "kysely": "^0.28.8",
     "lucide-react": "^0.552.0",

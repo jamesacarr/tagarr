@@ -5,7 +5,7 @@ import type { Run } from 'workflow/api';
 import { start } from 'workflow/api';
 
 import { tagMovies } from '@/workflows/tag-movies';
-import { updateLists } from '@/workflows/update-lists';
+import { tagSeries } from '@/workflows/tag-series';
 
 const SCHEDULE = '0 0 * * *';
 
@@ -33,8 +33,8 @@ export const scheduleWorkflows = () => {
   cron.schedule(SCHEDULE, async () => {
     console.log('[Workflow] Starting...');
 
-    await logWorkflow(await start(updateLists));
     await logWorkflow(await start(tagMovies));
+    await logWorkflow(await start(tagSeries));
 
     console.log('[Workflow] Completed');
   });

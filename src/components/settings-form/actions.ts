@@ -9,7 +9,6 @@ import { schema } from './schema';
 
 export const updateSettings = async (data: z.infer<typeof schema>) => {
   const validatedData = schema.safeParse({
-    mdblist_api_key: data.mdblist_api_key,
     radarr_api_key: data.radarr_api_key,
     radarr_url: data.radarr_url,
     sonarr_api_key: data.sonarr_api_key,

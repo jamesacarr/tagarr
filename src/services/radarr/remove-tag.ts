@@ -1,25 +1,27 @@
 import ky from 'ky';
 
 import type { MovieResponse } from './types';
-import { validateConfig } from './validate-config';
 
-export const removeTag = async (tagId: number, movieIds: number[]) => {
-  const { radarr_api_key, radarr_url } = await validateConfig();
+export const removeTag = async (
+  url: string,
+  apiKey: string,
+  tagId: number,
+  movieIds: number[],
+) => {
+  if (!url || !apiKey) {
+    return [];
+  }
 
-  const response = await ky.put<MovieResponse[]>(
-    `${radarr_url}/api/v3/movie/editor`,
-    {
+  return await ky
+    .put<MovieResponse[]>(`${url}/api/v3/movie/editor`, {
       headers: {
-        'X-Api-Key': radarr_api_key,
+        'X-Api-Key': apiKey,
       },
       json: {
         applyTags: 'remove',
         movieIds,
         tags: [tagId],
       },
-    },
-  );
-
-  const data = await response.json();
-  return data;
+    })
+    .json();
 };

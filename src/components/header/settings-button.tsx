@@ -1,4 +1,4 @@
-import { Settings } from 'lucide-react';
+import { SettingsIcon } from 'lucide-react';
 import Link from 'next/link';
 import type { FC } from 'react';
 
@@ -13,7 +13,7 @@ export const SettingsButton: FC = () => (
     variant="ghost"
   >
     <Link href="/settings">
-      <Settings />
+      <SettingsIcon />
     </Link>
   </Button>
 );

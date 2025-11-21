@@ -6,7 +6,6 @@ export interface ConfigTable {
   radarr_url: string;
   sonarr_api_key: string;
   sonarr_url: string;
-  mdblist_api_key: string;
 }
 
 export type Config = Selectable<ConfigTable>;

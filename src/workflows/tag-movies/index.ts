@@ -1,47 +1,29 @@
+import type { Grouped, Item } from '@/workflows/types';
+
 import { addTagToMovies } from './steps/add-tag-to-movies';
+import { fetchLists } from './steps/fetch-lists';
 import { fetchMovies } from './steps/fetch-movies';
-import { getAllLists } from './steps/get-all-lists';
+import { fetchTags } from './steps/fetch-tags';
 import { groupMovies } from './steps/group-movies';
 import { removeTagFromMovies } from './steps/remove-tag-from-movies';
-import { updateListSynced } from './steps/update-list-synced';
-import { validateRadarrConnection } from './steps/validate-radarr-connection';
+import { validateRadarrConfig } from './steps/validate-radarr-config';
 
-export const tagMovies = async () => {
+export const tagMovies = async (): Promise<Grouped<Item>[]> => {
   'use workflow';
 
-  await validateRadarrConnection();
+  const { apiKey, url } = await validateRadarrConfig();
 
-  const movies = await fetchMovies();
-  const lists = await getAllLists();
+  const [lists, movies, tags] = await Promise.all([
+    fetchLists(url, apiKey),
+    fetchMovies(url, apiKey),
+    fetchTags(url, apiKey),
+  ]);
+  const groupedMovies = await groupMovies(movies, lists, tags);
 
-  for (const list of lists) {
-    await updateListSynced(list.id, new Date().toISOString());
+  for (const { added, removed, tag } of groupedMovies) {
+    await addTagToMovies(url, apiKey, tag.id, added.items);
+    await removeTagFromMovies(url, apiKey, tag.id, removed.items);
   }
 
-  const groupedMovies = await groupMovies(movies, lists);
-
-  for (const { moviesToAdd, moviesToRemove, tagId } of groupedMovies) {
-    await addTagToMovies(tagId, moviesToAdd);
-    await removeTagFromMovies(tagId, moviesToRemove);
-  }
-
-  return groupedMovies.map(({ moviesToAdd, moviesToRemove, tagId }) => ({
-    added: {
-      count: moviesToAdd.length,
-      movies: moviesToAdd.map(movie => ({
-        id: movie.id,
-        title: movie.title,
-        tmdbId: movie.tmdbId,
-      })),
-    },
-    removed: {
-      count: moviesToRemove.length,
-      movies: moviesToRemove.map(movie => ({
-        id: movie.id,
-        title: movie.title,
-        tmdbId: movie.tmdbId,
-      })),
-    },
-    tagId,
-  }));
+  return groupedMovies;
 };
