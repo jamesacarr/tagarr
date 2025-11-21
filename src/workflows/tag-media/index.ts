@@ -20,6 +20,7 @@ export const tagMedia = async (
     fetchMedia(service, url, apiKey),
     fetchTags(service, url, apiKey),
   ]);
+
   const groupedMedia = await groupMedia(media, lists, tags);
 
   for (const { added, removed, tag } of groupedMedia) {

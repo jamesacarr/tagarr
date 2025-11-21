@@ -1,9 +1,8 @@
-// biome-ignore-all lint/suspicious/noConsole: we use console.log for logging
-
 import cron from 'node-cron';
 import type { Run } from 'workflow/api';
 import { start } from 'workflow/api';
 
+import { logger } from '@/lib/logger';
 import { tagMedia } from '@/workflows/tag-media';
 
 const SCHEDULE = '0 0 * * *';
@@ -15,26 +14,21 @@ const logWorkflow = async <T extends Run<unknown>>(run: T) => {
   const completedAt = await run.completedAt;
   const status = await run.status;
 
-  console.log(
-    '[Workflow]',
-    createdAt,
-    '-',
-    completedAt,
-    run.runId,
-    name,
-    status,
+  logger.info(
+    { completedAt, createdAt, name, runId: run.runId, status },
+    'Workflow completed',
   );
 };
 
 export const scheduleWorkflows = () => {
-  console.log('[Workflow] Scheduling', SCHEDULE);
+  logger.info({ schedule: SCHEDULE }, 'Scheduling workflows');
 
   cron.schedule(SCHEDULE, async () => {
-    console.log('[Workflow] Starting...');
+    logger.info('Starting workflows');
 
     await logWorkflow(await start(tagMedia, ['radarr']));
     await logWorkflow(await start(tagMedia, ['sonarr']));
 
-    console.log('[Workflow] Completed');
+    logger.info('Workflows completed');
   });
 };

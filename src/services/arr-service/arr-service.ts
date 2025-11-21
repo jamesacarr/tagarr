@@ -1,5 +1,7 @@
 import ky from 'ky';
 
+import { logger } from '@/lib/logger';
+
 import type { List, ListWithTags, Tag, ValidateConfigResult } from './types';
 
 /**
@@ -109,16 +111,21 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
     const mediaType = this.getMediaType();
     const mediaIdsKey = this.getMediaIdsKey();
 
-    return await ky
-      .put<TMedia[]>(`${url}/api/v3/${mediaType}/editor`, {
-        headers: { 'X-Api-Key': apiKey },
-        json: {
-          applyTags: 'add',
-          [mediaIdsKey]: mediaIds,
-          tags: [tagId],
-        },
-      })
-      .json();
+    try {
+      return await ky
+        .put<TMedia[]>(`${url}/api/v3/${mediaType}/editor`, {
+          headers: { 'X-Api-Key': apiKey },
+          json: {
+            applyTags: 'add',
+            [mediaIdsKey]: mediaIds,
+            tags: [tagId],
+          },
+        })
+        .json();
+    } catch (error) {
+      logger.error({ error, mediaType, url }, 'Failed to add tag to media');
+      throw new Error(`Failed to add tag id ${tagId} to ${mediaType}`);
+    }
   }
 
   /**
@@ -134,25 +141,30 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
   async getLists(): Promise<List[]> {
     const { url, apiKey } = this.config;
 
-    const lists = await ky
-      .get<TList[]>(`${url}/api/v3/importlist`, {
-        headers: { 'X-Api-Key': apiKey },
-      })
-      .json();
+    try {
+      const lists = await ky
+        .get<TList[]>(`${url}/api/v3/importlist`, {
+          headers: { 'X-Api-Key': apiKey },
+        })
+        .json();
 
-    return lists
-      .filter(
-        list =>
-          list.tags.length > 0 &&
-          this.getListEnabled(list) &&
-          this.getListUrl(list).startsWith('https://mdblist.com'),
-      )
-      .map(list => ({
-        id: list.id,
-        name: list.name,
-        tags: list.tags,
-        url: this.getListUrl(list),
-      }));
+      return lists
+        .filter(
+          list =>
+            list.tags.length > 0 &&
+            this.getListEnabled(list) &&
+            this.getListUrl(list).startsWith('https://mdblist.com'),
+        )
+        .map(list => ({
+          id: list.id,
+          name: list.name,
+          tags: list.tags,
+          url: this.getListUrl(list),
+        }));
+    } catch (error) {
+      logger.error({ error, url }, 'Failed to fetch lists');
+      throw new Error('Failed to fetch lists');
+    }
   }
 
   /**
@@ -183,11 +195,16 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
     const { url, apiKey } = this.config;
     const mediaType = this.getMediaType();
 
-    return await ky
-      .get<TMedia[]>(`${url}/api/v3/${mediaType}`, {
-        headers: { 'X-Api-Key': apiKey },
-      })
-      .json();
+    try {
+      return await ky
+        .get<TMedia[]>(`${url}/api/v3/${mediaType}`, {
+          headers: { 'X-Api-Key': apiKey },
+        })
+        .json();
+    } catch (error) {
+      logger.error({ error, mediaType, url }, 'Failed to fetch media');
+      throw new Error(`Failed to fetch ${mediaType}`);
+    }
   }
 
   /**
@@ -219,9 +236,15 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
    */
   async getTags(): Promise<Tag[]> {
     const { url, apiKey } = this.config;
-    return await ky
-      .get<Tag[]>(`${url}/api/v3/tag`, { headers: { 'X-Api-Key': apiKey } })
-      .json();
+
+    try {
+      return await ky
+        .get<Tag[]>(`${url}/api/v3/tag`, { headers: { 'X-Api-Key': apiKey } })
+        .json();
+    } catch (error) {
+      logger.error({ error, url }, 'Failed to fetch tags');
+      throw new Error('Failed to fetch tags');
+    }
   }
 
   /**
@@ -259,16 +282,24 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
     const mediaType = this.getMediaType();
     const mediaIdsKey = this.getMediaIdsKey();
 
-    return await ky
-      .put<TMedia[]>(`${url}/api/v3/${mediaType}/editor`, {
-        headers: { 'X-Api-Key': apiKey },
-        json: {
-          applyTags: 'remove',
-          [mediaIdsKey]: mediaIds,
-          tags: [tagId],
-        },
-      })
-      .json();
+    try {
+      return await ky
+        .put<TMedia[]>(`${url}/api/v3/${mediaType}/editor`, {
+          headers: { 'X-Api-Key': apiKey },
+          json: {
+            applyTags: 'remove',
+            [mediaIdsKey]: mediaIds,
+            tags: [tagId],
+          },
+        })
+        .json();
+    } catch (error) {
+      logger.error(
+        { error, mediaType, url },
+        'Failed to remove tag from media',
+      );
+      throw new Error(`Failed to remove tag id ${tagId} from ${mediaType}`);
+    }
   }
 
   /**

@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 import { FileMigrationProvider, Migrator } from 'kysely';
 
+import { logger } from '@/lib/logger';
+
 import { db } from './db';
 
 export const migrateToLatest = async () => {
@@ -20,19 +22,22 @@ export const migrateToLatest = async () => {
   for (const result of results ?? []) {
     switch (result.status) {
       case 'Success':
-        console.log(
-          `[Migration] ${result.migrationName}: executed successfully`,
+        logger.info(
+          { migrationName: result.migrationName },
+          'Migration executed successfully',
         );
         break;
       case 'Error':
-        console.error(`[Migration] ${result.migrationName}: failed to execute`);
+        logger.error(
+          { migrationName: result.migrationName },
+          'Migration failed to execute',
+        );
         break;
     }
   }
 
   if (error) {
-    console.error('[Migration] failed to migrate');
-    console.error(error);
+    logger.error({ error }, 'Migration failed to migrate');
     process.exit(1);
   }
 };
