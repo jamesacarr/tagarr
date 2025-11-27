@@ -22,7 +22,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN corepack enable
 
 # This needs prod=false because types don't get installed correctly otherwise
-RUN pnpm install --frozen-lockfile --prod=false
+RUN pnpm install --frozen-lockfile
 
 COPY .tool-versions next.config.ts postcss.config.mjs tsconfig.json ./
 COPY src ./src
