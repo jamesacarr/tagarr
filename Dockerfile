@@ -1,12 +1,14 @@
+ARG VERSION=unknown
+
 ##############################
 # Base Image
 ##############################
 FROM node:24-alpine AS base
 
-RUN apk add --no-cache libc6-compat tzdata
-
 ENV TZ=UTC
 ENV WORKFLOW_TARGET_WORLD=embedded
+
+RUN apk add --no-cache libc6-compat tzdata
 
 ##############################
 # Builder Image
@@ -26,6 +28,10 @@ RUN pnpm install --frozen-lockfile
 
 COPY .tool-versions next.config.ts postcss.config.mjs tsconfig.json ./
 COPY src ./src
+
+ARG VERSION
+ENV NEXT_PUBLIC_VERSION=${VERSION}
+
 RUN pnpm build
 
 ##############################
