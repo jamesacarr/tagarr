@@ -5,7 +5,8 @@ import { Toaster } from 'sonner';
 
 import './globals.css';
 
-import { Header } from '@/components/header';
+import { AppSidebar } from '@/components/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 interface Props {
   children: ReactNode;
@@ -36,13 +37,13 @@ export const viewport: Viewport = {
 const RootLayout: FC<Props> = ({ children }) => (
   <html className={raleway.className} lang="en-AU">
     <body className="dark">
-      <div className="[--header-height:calc(--spacing(14))] flex flex-col">
-        <Header />
-        <main className="flex justify-center p-8">
-          <Toaster richColors />
-          {children}
-        </main>
-      </div>
+      <Toaster richColors />
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <main className="flex justify-center p-2">{children}</main>
+        </SidebarInset>
+      </SidebarProvider>
     </body>
   </html>
 );
