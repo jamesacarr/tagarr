@@ -30,7 +30,7 @@ describe('Header', () => {
   });
 
   describe('accessibility', () => {
-    it('should have no violations', async () => {
+    it('has no violations', async () => {
       const { container } = render(<Header />);
 
       const results = await axe(container);

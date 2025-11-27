@@ -47,10 +47,13 @@ export const SettingsForm: FC<Props> = ({ settings }) => {
 
   const onSubmit = useCallback(
     async (data: z.infer<typeof schema>) => {
-      await updateSettings(data);
-      toast.success('Settings updated');
-
-      router.push('/');
+      try {
+        await updateSettings(data);
+        toast.success('Settings updated');
+        router.push('/');
+      } catch {
+        toast.error('Failed to update settings');
+      }
     },
     [router],
   );

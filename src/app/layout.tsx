@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import { Raleway } from 'next/font/google';
 import type { FC, ReactNode } from 'react';
+import { Toaster } from 'sonner';
 
 import './globals.css';
 
 import { Header } from '@/components/header';
-import { Toasts } from '@/components/toasts';
 
 interface Props {
   children: ReactNode;
@@ -39,7 +39,7 @@ const RootLayout: FC<Props> = ({ children }) => (
       <div className="[--header-height:calc(--spacing(14))] flex flex-col">
         <Header />
         <main className="flex justify-center p-8">
-          <Toasts />
+          <Toaster richColors />
           {children}
         </main>
       </div>

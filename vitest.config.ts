@@ -9,9 +9,10 @@ export default defineConfig({
     coverage: {
       exclude: [
         '**/types.ts',
-        '**/index.ts',
+        'src/app/.well-known',
         'src/components/ui',
         'src/db/migrations',
+        'src/mocks',
       ],
       include: ['src/**'],
     },

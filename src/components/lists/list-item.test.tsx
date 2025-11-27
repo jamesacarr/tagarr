@@ -35,7 +35,7 @@ describe('ListItem', () => {
   });
 
   describe('accessibility', () => {
-    it('should have no violations', async () => {
+    it('has no violations', async () => {
       const { container } = render(<ListItem list={LIST} />);
 
       const results = await axe(container);

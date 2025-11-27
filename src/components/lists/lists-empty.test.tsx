@@ -13,7 +13,7 @@ describe('ListsEmpty', () => {
   });
 
   describe('accessibility', () => {
-    it('should have no violations', async () => {
+    it('has no violations', async () => {
       const { container } = render(<ListsEmpty />);
 
       const results = await axe(container);

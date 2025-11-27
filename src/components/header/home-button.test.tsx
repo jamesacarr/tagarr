@@ -17,7 +17,7 @@ describe('HomeButton', () => {
   });
 
   describe('accessibility', () => {
-    it('should have no violations', async () => {
+    it('has no violations', async () => {
       const { container } = render(<HomeButton />);
 
       const results = await axe(container);

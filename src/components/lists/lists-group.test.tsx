@@ -37,7 +37,7 @@ describe('Lists', () => {
   });
 
   describe('accessibility', () => {
-    it('should have no violations', async () => {
+    it('has no violations', async () => {
       const { container } = render(
         <ListsGroup lists={LISTS} service="radarr" />,
       );

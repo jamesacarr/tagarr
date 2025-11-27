@@ -3,7 +3,7 @@ import { capitalize } from 'radash';
 
 import { logger } from '@/lib/logger';
 
-interface ListItemsResponse {
+export interface ListItemsResponse {
   adult: number;
   id: number; // This is the tmdb id number
   imdb_id: string | null;
@@ -11,8 +11,10 @@ interface ListItemsResponse {
   rank: number;
   release_year: number;
   title: string;
-  tvdb_id: number | null;
+  tvdbid: number | null;
 }
+
+const RETRY_LIMIT = process.env.NODE_ENV !== 'test' ? 2 : 0;
 
 export const getListItems = async (
   url: string,
@@ -25,6 +27,7 @@ export const getListItems = async (
           // Using Radarr/Sonarr as the user agent in order to get the correct response format
           'User-Agent': capitalize(service),
         },
+        retry: RETRY_LIMIT,
       })
       .json();
   } catch (error) {
