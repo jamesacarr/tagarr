@@ -1,6 +1,10 @@
-import { logger } from '@/lib/logger';
+import { getStepMetadata } from 'workflow';
+
+import { createLogger } from '@/lib/logger';
 import { createArrService } from '@/services/arr-service';
 import type { Item } from '@/workflows/types';
+
+const log = createLogger('[Workflow/TagMedia/AddTagToMedia]');
 
 export const addTagToMedia = async (
   service: 'radarr' | 'sonarr',
@@ -15,11 +19,14 @@ export const addTagToMedia = async (
     return;
   }
 
-  logger.info({ service, tagId }, 'Adding tag to media');
+  const context = getStepMetadata();
+  log.info({ context, service, tagId }, 'Starting');
 
   const mediaIds = media.map(media => media.id);
-  logger.debug({ mediaIds, service, tagId }, 'Media IDs to add');
+  log.debug({ context, mediaIds, service, tagId }, 'Media IDs');
 
   const arrService = createArrService(service, url, apiKey);
   await arrService.addTag(tagId, mediaIds);
+
+  log.info({ context, service, tagId }, 'Finished');
 };

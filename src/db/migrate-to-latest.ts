@@ -3,13 +3,16 @@ import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import type { MigrationInfo } from 'kysely';
 import { FileMigrationProvider, Migrator } from 'kysely';
 
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
 
 import { db } from './db';
 
-export const migrateToLatest = async () => {
+const log = createLogger('[Migration]');
+
+const getMigrator = () => {
   const filePath = fileURLToPath(import.meta.url);
   const migrationFolder = path.join(path.dirname(filePath), 'migrations');
   const migrator = new Migrator({
@@ -17,27 +20,44 @@ export const migrateToLatest = async () => {
     provider: new FileMigrationProvider({ fs, migrationFolder, path }),
   });
 
+  return migrator;
+};
+
+const shouldRunMigrations = (migrations: readonly MigrationInfo[]) =>
+  migrations.length > 0 &&
+  migrations.some(migration => migration.executedAt === undefined);
+
+export const migrateToLatest = async () => {
+  log.info('Migrations starting');
+
+  const migrator = getMigrator();
+  const migrations = await migrator.getMigrations();
+  if (!shouldRunMigrations(migrations)) {
+    log.info('No pending migrations');
+
+    return;
+  }
+
   const { error, results } = await migrator.migrateToLatest();
 
   for (const result of results ?? []) {
     switch (result.status) {
       case 'Success':
-        logger.info(
+        log.info(
           { migrationName: result.migrationName },
-          'Migration executed successfully',
+          'Migration succeeded',
         );
         break;
       case 'Error':
-        logger.error(
-          { migrationName: result.migrationName },
-          'Migration failed to execute',
-        );
+        log.error({ migrationName: result.migrationName }, 'Migration failed');
         break;
     }
   }
 
   if (error) {
-    logger.error({ error }, 'Migration failed to migrate');
+    log.fatal({ error }, 'Migrations failed');
     process.exit(1);
   }
+
+  log.info('Migrations finished');
 };

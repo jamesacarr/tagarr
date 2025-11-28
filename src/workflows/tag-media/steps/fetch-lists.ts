@@ -1,7 +1,11 @@
-import { logger } from '@/lib/logger';
+import { getStepMetadata } from 'workflow';
+
+import { createLogger } from '@/lib/logger';
 import { createArrService } from '@/services/arr-service';
 import { getListItems } from '@/services/mdblist';
 import type { ListWithItems } from '@/workflows/types';
+
+const log = createLogger('[Workflow/TagMedia/FetchLists]');
 
 export const fetchLists = async (
   service: 'radarr' | 'sonarr',
@@ -10,19 +14,27 @@ export const fetchLists = async (
 ): Promise<ListWithItems[]> => {
   'use step';
 
-  logger.info({ service }, 'Fetching lists');
+  const context = getStepMetadata();
+
+  log.info({ context, service }, 'Starting');
 
   const arrService = createArrService(service, url, apiKey);
-  const lists = await arrService.getLists();
+  const lists = await arrService.getListsWithTags();
 
-  logger.debug({ lists }, 'Lists');
+  log.debug({ context, lists, service }, 'Lists');
 
   const listsWithItems = await Promise.all(
     lists.map(async list => {
-      logger.debug({ url: list.url }, 'Fetching list items');
+      log.debug({ context, service, url: list.url }, 'Fetching list items');
 
       const items = await getListItems(list.url, service);
       const itemIds = items.map(item => item.id);
+
+      log.debug(
+        { context, itemIds, service, url: list.url },
+        'Fetched list items',
+      );
+
       return {
         id: list.id,
         itemIds,
@@ -31,7 +43,8 @@ export const fetchLists = async (
     }),
   );
 
-  logger.debug({ listsWithItems }, 'Lists with items');
+  log.debug({ context, listsWithItems, service }, 'Lists with items');
+  log.info({ context, service }, 'Finished');
 
   return listsWithItems;
 };

@@ -130,7 +130,7 @@ describe('getListItems', () => {
           error: expect.any(Error),
           url: TEST_URL,
         }),
-        'Failed to fetch MDBList list',
+        'Failed to fetch list items',
       );
     });
   });

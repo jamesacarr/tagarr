@@ -2,37 +2,50 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { start } from 'workflow/api';
 
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
 import { tagMedia } from '@/workflows/tag-media';
 
-export const POST = async (request: NextRequest) => {
-  const sync = request.nextUrl.searchParams.has('sync');
-  logger.info(
-    { service: 'sonarr', sync, url: request.nextUrl.pathname },
-    'Series tagging API endpoint called',
-  );
+import type { WorkflowResponse } from '../types';
 
-  const run = await start(tagMedia, ['sonarr']);
+const log = createLogger('[API/Workflows/Series]');
+
+export const POST = async (
+  request: NextRequest,
+): Promise<NextResponse<WorkflowResponse>> => {
+  const service = 'sonarr';
+  const sync = request.nextUrl.searchParams.has('sync');
+  const url = request.nextUrl.pathname;
+
+  log.info({ service, sync, url }, 'Workflow starting');
+
+  const run = await start(tagMedia, [service]);
   const runId = run.runId;
 
+  log.info({ runId, service, sync, url }, 'Workflow started');
+
+  const createdAt = await run.createdAt;
+  let status = await run.status;
+
   if (!sync) {
-    logger.info({ runId }, 'Series tagging started');
+    log.info(
+      { createdAt, runId, service, status, sync, url },
+      'Returning status',
+    );
+
     return NextResponse.json({
-      message: 'Series tagging started',
+      createdAt,
       runId,
+      status,
     });
   }
 
-  logger.info({ runId }, 'Series tagging waiting for completion');
-
   const result = await run.returnValue;
-  const createdAt = await run.createdAt;
   const completedAt = await run.completedAt;
-  const status = await run.status;
+  status = await run.status;
 
-  logger.info(
-    { completedAt, createdAt, runId, status },
-    'Series tagging completed',
+  log.info(
+    { completedAt, createdAt, runId, service, status, url },
+    'Workflow finished',
   );
 
   return NextResponse.json({

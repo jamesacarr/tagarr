@@ -17,7 +17,15 @@ This service will automatically do the following once a day (at midnight UTC):
 
 ## API
 
-This services also provides some API endpoints to programmatically trigger syncs. They are as follows:
+### `GET /api/ping`
+
+- Response 200 (application/json)
+
+```
+{
+  "message": "ok",
+}
+```
 
 ### `POST /api/workflows/movies`
 
@@ -25,8 +33,9 @@ This services also provides some API endpoints to programmatically trigger syncs
 
 ```
 {
-  "message": "Movie tagging started",
-  "runId": "wrun_123",
+  "runId": <runId>,
+  "status": "pending",
+  "createdAt": "<created timestamp>",
 }
 ```
 
@@ -77,8 +86,9 @@ If the `sync` query parameter is added to the URL (e.g. `/api/workflow/movies?sy
 
 ```
 {
-  "message": "Series tagging started",
-  "runId": "wrun_123",
+  "runId": <runId>,
+  "status": "pending",
+  "createdAt": "<created timestamp>",
 }
 ```
 

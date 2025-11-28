@@ -1,7 +1,9 @@
 import ky from 'ky';
 import { capitalize } from 'radash';
 
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('[MDBList/GetListItems]');
 
 export interface ListItemsResponse {
   adult: number;
@@ -31,7 +33,7 @@ export const getListItems = async (
       })
       .json();
   } catch (error) {
-    logger.error({ error, url }, 'Failed to fetch MDBList list');
+    log.error({ error, url }, 'Failed to fetch list items');
     throw new Error('Failed to fetch list items');
   }
 };

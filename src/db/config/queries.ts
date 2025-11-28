@@ -1,8 +1,8 @@
 'use server';
 
 import { db } from '../db';
+import { removeTrailingSlashes } from './remove-trailing-slashes';
 import type { ConfigUpdate } from './types';
-import { validateConfig } from './validate-config';
 
 const DEFAULT_CONFIG = {
   radarr_api_key: '',
@@ -23,11 +23,11 @@ export const getConfig = async () => {
 };
 
 export const updateConfig = async (data: ConfigUpdate) => {
-  const validatedConfig = validateConfig(data);
+  const fixedData = removeTrailingSlashes(data);
 
   const config = await db
     .updateTable('config')
-    .set(validatedConfig)
+    .set(fixedData)
     .returningAll()
     .executeTakeFirst();
 

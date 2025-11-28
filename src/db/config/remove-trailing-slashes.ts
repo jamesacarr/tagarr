@@ -1,7 +1,7 @@
 import type { ConfigUpdate } from './types';
 
 // Ensure URLs always ends with a slash
-export const validateConfig = (config: ConfigUpdate) => {
+export const removeTrailingSlashes = (config: ConfigUpdate) => {
   if ('radarr_url' in config && config.radarr_url) {
     config.radarr_url = config.radarr_url.endsWith('/')
       ? config.radarr_url.slice(0, -1)

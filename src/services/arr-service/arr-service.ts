@@ -1,6 +1,7 @@
 import ky from 'ky';
+import type { Logger } from 'pino';
 
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
 
 import type { List, ListWithTags, Tag, ValidateConfigResult } from './types';
 
@@ -49,6 +50,7 @@ interface BaseList {
  */
 export abstract class ArrService<TMedia, TList extends BaseList> {
   protected readonly config: ArrServiceConfig;
+  protected readonly log: Logger;
 
   /**
    * Creates a new *arr service instance
@@ -62,6 +64,7 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
     }
 
     this.config = config;
+    this.log = createLogger(this.constructor.name);
   }
 
   /**
@@ -123,7 +126,7 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
         })
         .json();
     } catch (error) {
-      logger.error({ error, mediaType, url }, 'Failed to add tag to media');
+      this.log.error({ error, mediaType, url }, 'Failed to add tag to media');
       throw new Error(`Failed to add tag id ${tagId} to ${mediaType}`);
     }
   }
@@ -162,7 +165,7 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
           url: this.getListUrl(list),
         }));
     } catch (error) {
-      logger.error({ error, url }, 'Failed to fetch lists');
+      this.log.error({ error, url }, 'Failed to fetch lists');
       throw new Error('Failed to fetch lists');
     }
   }
@@ -202,7 +205,7 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
         })
         .json();
     } catch (error) {
-      logger.error({ error, mediaType, url }, 'Failed to fetch media');
+      this.log.error({ error, mediaType, url }, 'Failed to fetch media');
       throw new Error(`Failed to fetch ${mediaType}`);
     }
   }
@@ -242,7 +245,7 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
         .get<Tag[]>(`${url}/api/v3/tag`, { headers: { 'X-Api-Key': apiKey } })
         .json();
     } catch (error) {
-      logger.error({ error, url }, 'Failed to fetch tags');
+      this.log.error({ error, url }, 'Failed to fetch tags');
       throw new Error('Failed to fetch tags');
     }
   }
@@ -294,7 +297,7 @@ export abstract class ArrService<TMedia, TList extends BaseList> {
         })
         .json();
     } catch (error) {
-      logger.error(
+      this.log.error(
         { error, mediaType, url },
         'Failed to remove tag from media',
       );

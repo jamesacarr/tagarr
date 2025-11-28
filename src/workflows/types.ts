@@ -1,6 +1,6 @@
 export interface ListWithItems {
   id: number; // This is the tmdb id number
-  tags: number[];
+  tags: Tag[];
   itemIds: number[];
 }
 

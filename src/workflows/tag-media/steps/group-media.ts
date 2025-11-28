@@ -1,3 +1,6 @@
+import { getStepMetadata } from 'workflow';
+
+import { createLogger } from '@/lib/logger';
 import type {
   Grouped,
   Item,
@@ -6,40 +9,53 @@ import type {
   WithTags,
 } from '@/workflows/types';
 
+const log = createLogger('[Workflow/TagMedia/GroupMedia]');
+
 // biome-ignore lint/suspicious/useAwait: needs to be async for workflows
 export const groupMedia = async (
   media: WithTags<Item>[],
   lists: ListWithItems[],
-  tags: Tag[],
 ): Promise<Grouped<Item>[]> => {
   'use step';
 
-  const tagIds = lists.flatMap(list => list.tags);
-  const tagsMap = new Map(tagIds.map(tagId => [tagId, new Set<number>()]));
+  const context = getStepMetadata();
 
+  log.info({ context }, 'Starting');
+
+  const tagsMap: Map<number, Tag & { itemIds: Set<number> }> = new Map();
   for (const list of lists) {
-    for (const itemId of list.itemIds) {
-      for (const tagId of list.tags) {
-        tagsMap.get(tagId)?.add(itemId);
+    for (const tag of list.tags) {
+      const tagWithItems = tagsMap.get(tag.id) ?? {
+        ...tag,
+        itemIds: new Set<number>(),
+      };
+
+      for (const itemId of list.itemIds) {
+        tagWithItems.itemIds.add(itemId);
       }
+
+      tagsMap.set(tag.id, tagWithItems);
     }
   }
 
-  const groupedMedia = [...tagsMap.entries()].map(([tagId, itemIds]) => {
-    const tag = tags.find(tag => tag.id === tagId);
-    if (!tag) {
-      throw new Error(`Tag with id ${tagId} not found`);
-    }
+  log.debug({ context, tagsMap }, 'Tags map');
 
+  const groupedMedia = [...tagsMap.entries()].map(([tagId, tagWithItems]) => {
     const mediaToAdd = media
-      .filter(media => itemIds.has(media.tmdbId) && !media.tags.includes(tagId))
+      .filter(
+        media =>
+          tagWithItems.itemIds.has(media.tmdbId) && !media.tags.includes(tagId),
+      )
       .map(media => ({
         id: media.id,
         title: media.title,
         tmdbId: media.tmdbId,
       }));
     const mediaToRemove = media
-      .filter(media => !itemIds.has(media.tmdbId) && media.tags.includes(tagId))
+      .filter(
+        media =>
+          !tagWithItems.itemIds.has(media.tmdbId) && media.tags.includes(tagId),
+      )
       .map(media => ({
         id: media.id,
         title: media.title,
@@ -55,9 +71,15 @@ export const groupMedia = async (
         count: mediaToRemove.length,
         items: mediaToRemove,
       },
-      tag,
+      tag: {
+        id: tagWithItems.id,
+        label: tagWithItems.label,
+      },
     };
   });
+
+  log.debug({ context, groupedMedia }, 'Grouped media');
+  log.info({ context }, 'Finished');
 
   return groupedMedia;
 };

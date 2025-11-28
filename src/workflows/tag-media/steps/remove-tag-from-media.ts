@@ -1,6 +1,10 @@
-import { logger } from '@/lib/logger';
+import { getStepMetadata } from 'workflow';
+
+import { createLogger } from '@/lib/logger';
 import { createArrService } from '@/services/arr-service';
 import type { Item } from '@/workflows/types';
+
+const log = createLogger('[Workflow/TagMedia/RemoveTagFromMedia]');
 
 export const removeTagFromMedia = async (
   service: 'radarr' | 'sonarr',
@@ -15,11 +19,14 @@ export const removeTagFromMedia = async (
     return;
   }
 
-  logger.info({ service, tagId }, 'Removing tag from media');
+  const context = getStepMetadata();
+  log.info({ context, service, tagId }, 'Starting');
 
   const mediaIds = media.map(media => media.id);
-  logger.debug({ mediaIds, service, tagId }, 'Media IDs to remove');
+  log.debug({ context, mediaIds, service, tagId }, 'Media IDs');
 
   const arrService = createArrService(service, url, apiKey);
   await arrService.removeTag(tagId, mediaIds);
+
+  log.info({ context, service, tagId }, 'Finished');
 };
