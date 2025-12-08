@@ -5,12 +5,10 @@ const config: NextConfig = {
   compiler: {
     reactRemoveProperties: true,
   },
-
   output: 'standalone',
-
   // Remove the x-powered-by: next headers
   poweredByHeader: false,
-
+  serverExternalPackages: ['pino'],
   typedRoutes: true,
 };
 

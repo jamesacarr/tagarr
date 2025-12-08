@@ -6,7 +6,7 @@ ARG VERSION=unknown
 FROM node:24-alpine AS base
 
 ENV TZ=UTC
-ENV WORKFLOW_TARGET_WORLD=embedded
+ENV WORKFLOW_TARGET_WORLD=local
 
 RUN apk add --no-cache libc6-compat tzdata
 
@@ -40,7 +40,7 @@ RUN pnpm build
 FROM base AS runner
 
 ENV DATA_FOLDER=/data
-ENV WORKFLOW_EMBEDDED_DATA_DIR=${DATA_FOLDER}/.workflow-data
+ENV WORKFLOW_LOCAL_DATA_DIR=${DATA_FOLDER}/.workflow-data
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
