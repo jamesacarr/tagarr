@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { FC } from 'react';
 import { useCallback } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import type z from 'zod';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,20 +17,45 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
+import { Field, FieldGroup } from '@/components/ui/field';
 import { Spinner } from '@/components/ui/spinner';
 
 import { updateSettings } from './actions';
+import type { Fields } from './schema';
 import { schema } from './schema';
+import { SettingsField } from './settings-field';
+
+interface FieldList {
+  label: string;
+  name: keyof Fields;
+  placeholder: string;
+}
+
+const FIELDS: FieldList[] = [
+  {
+    label: 'Radarr URL',
+    name: 'radarr_url',
+    placeholder: 'https://radarr.video:7878',
+  },
+  {
+    label: 'Radarr API Key',
+    name: 'radarr_api_key',
+    placeholder: '',
+  },
+  {
+    label: 'Sonarr URL',
+    name: 'sonarr_url',
+    placeholder: 'https://sonarr.tv:8989',
+  },
+  {
+    label: 'Sonarr API Key',
+    name: 'sonarr_api_key',
+    placeholder: '',
+  },
+];
 
 interface Props {
-  settings: z.infer<typeof schema>;
+  settings: Fields;
 }
 
 export const SettingsForm: FC<Props> = ({ settings }) => {
@@ -40,22 +64,33 @@ export const SettingsForm: FC<Props> = ({ settings }) => {
     control,
     formState: { isSubmitting },
     handleSubmit,
-  } = useForm<z.infer<typeof schema>>({
+    setError,
+  } = useForm<Fields>({
     defaultValues: settings,
     resolver: zodResolver(schema),
   });
 
   const onSubmit = useCallback(
-    async (data: z.infer<typeof schema>) => {
+    async (data: Fields) => {
       try {
-        await updateSettings(data);
-        toast.success('Settings updated');
-        router.push('/');
+        const result = await updateSettings(data);
+        if (result.success) {
+          toast.success('Settings updated');
+          router.push('/');
+          return;
+        }
+
+        for (const error of result.errors) {
+          setError(error.path as keyof Fields, {
+            message: error.message,
+            type: error.type,
+          });
+        }
       } catch {
         toast.error('Failed to update settings');
       }
     },
-    [router],
+    [router, setError],
   );
 
   return (
@@ -69,82 +104,9 @@ export const SettingsForm: FC<Props> = ({ settings }) => {
       <CardContent>
         <form id="settings-form" onSubmit={handleSubmit(onSubmit)}>
           <FieldGroup>
-            <Controller
-              control={control}
-              name="radarr_url"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="radarr-url">Radarr URL</FieldLabel>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                    id="radarr-url"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="radarr_api_key"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="radarr-api-key">
-                    Radarr API Key
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                    id="radarr-api-key"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="sonarr_url"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="sonarr-url">Sonarr URL</FieldLabel>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                    id="sonarr-url"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="sonarr_api_key"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="sonarr-api-key">
-                    Sonarr API Key
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                    id="sonarr-api-key"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
+            {FIELDS.map(field => (
+              <SettingsField control={control} key={field.name} {...field} />
+            ))}
           </FieldGroup>
         </form>
       </CardContent>

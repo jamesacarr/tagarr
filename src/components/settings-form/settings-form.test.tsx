@@ -117,6 +117,8 @@ describe('SettingsForm', () => {
     });
 
     it('redirects to the home page after saving', async () => {
+      mockUpdateSettings.mockResolvedValue({ success: true });
+
       render(<SettingsForm settings={DEFAULT_SETTINGS} />);
 
       await userEvent.click(screen.getByText('Save'));
@@ -125,6 +127,8 @@ describe('SettingsForm', () => {
     });
 
     it('displays a success toast after saving', async () => {
+      mockUpdateSettings.mockResolvedValue({ success: true });
+
       render(<SettingsForm settings={DEFAULT_SETTINGS} />);
 
       await userEvent.click(screen.getByText('Save'));
@@ -133,15 +137,46 @@ describe('SettingsForm', () => {
     });
 
     it('displays an error toast after error when saving', async () => {
-      mockUpdateSettings.mockRejectedValue(
-        new Error('Failed to update settings'),
-      );
+      mockUpdateSettings.mockRejectedValue(new Error('Network error'));
 
       render(<SettingsForm settings={DEFAULT_SETTINGS} />);
 
       await userEvent.click(screen.getByText('Save'));
 
       expect(mockError).toHaveBeenCalledWith('Failed to update settings');
+    });
+
+    it('displays an error when the Radarr URL is invalid', async () => {
+      render(<SettingsForm settings={DEFAULT_SETTINGS} />);
+
+      await userEvent.type(screen.getByLabelText('Radarr URL'), 'invalid_url');
+      await userEvent.click(screen.getByText('Save'));
+
+      expect(screen.getByText('Invalid URL')).toBeInTheDocument();
+    });
+
+    it('displays an error when the Sonarr URL is invalid', async () => {
+      render(<SettingsForm settings={DEFAULT_SETTINGS} />);
+
+      await userEvent.type(screen.getByLabelText('Sonarr URL'), 'invalid_url');
+      await userEvent.click(screen.getByText('Save'));
+
+      expect(screen.getByText('Invalid URL')).toBeInTheDocument();
+    });
+
+    it('displays a field error returned from the API', async () => {
+      mockUpdateSettings.mockResolvedValue({
+        errors: [
+          { message: 'Testing error', path: 'radarr_url', type: 'test' },
+        ],
+        success: false,
+      });
+
+      render(<SettingsForm settings={DEFAULT_SETTINGS} />);
+
+      await userEvent.click(screen.getByText('Save'));
+
+      expect(screen.getByText('Testing error')).toBeInTheDocument();
     });
   });
 

@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 
 export const schema = z.object({
   radarr_api_key: z.string(),
@@ -6,3 +6,5 @@ export const schema = z.object({
   sonarr_api_key: z.string(),
   sonarr_url: z.union([z.url(), z.literal('')]),
 });
+
+export type Fields = z.infer<typeof schema>;
